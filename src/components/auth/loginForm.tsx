@@ -1,11 +1,13 @@
+"use client"
 import {useForm, SubmitHandler} from "react-hook-form"; // react hook form sirve para manejar formularios
 import {z} from "zod"; // zod
 import { zodResolver } from "@hookform/resolvers/zod";  // zod resolver sirve para resolver los formularios
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { useState } from "react";
 import CustomPasswordInput from "./customPasswordInput";
 import authServices from "@/servises/auth.services";
+import { useUser } from "@/contexts/user.context"; //
+import { tr } from "zod/locales";
 
 
 const loginSchema = z.object({
@@ -19,6 +21,8 @@ type Logintype = z.infer<typeof loginSchema>
 export default function LoginForm(){
 
     
+    const { setUserName, setEmail, setToken, setActive, active, userName, email, token } = useUser();
+    
 
     // se declaran los formularios con react hook form 
     const { 
@@ -27,7 +31,7 @@ export default function LoginForm(){
         formState: { 
             errors // sirve para manejar los errores
         },
-        watch 
+         
  } = useForm<Logintype>({
         resolver: zodResolver(loginSchema)
     })
@@ -37,6 +41,21 @@ export default function LoginForm(){
         
        const registeredUser = await authServices.login(data)
        console.log("registeredUser", registeredUser)
+        if ('data' in registeredUser && registeredUser.status === 200) {
+        console.log("entre al 200");
+        console.log(registeredUser.data.message)
+        setUserName(registeredUser.data.user.userName);
+        setEmail(registeredUser.data.user.email);
+        setToken(registeredUser.data.token);
+        setActive(true);
+    } 
+        if("data" in registeredUser && registeredUser.status === 400){
+            console.log("entre al 400");
+            console.log(registeredUser.data.message)
+        }
+
+        console.log("datos del provider", active, userName, email, token);
+      
        return registeredUser;
     }
 

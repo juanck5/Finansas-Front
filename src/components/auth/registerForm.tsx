@@ -4,6 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../ui/input";
 import CustomPasswordInput from "./customPasswordInput";
 import { Button } from "../ui/button";
+import authServices from "@/servises/auth.services";
+import { toast } from "sonner";
 
 const registerSchema = z.object({
     email: z.string().email("El correo no es válido").nonempty("El correo es requerido"),
@@ -18,7 +20,8 @@ type RegisterType = z.infer<typeof registerSchema>
 export default function RegisterUserForm(){
     const { 
         register,  // sirve para registrar los formularios
-        handleSubmit, // sirve para manejar los formularios
+        handleSubmit,
+        reset, // sirve para manejar los formularios
         formState: { 
             errors // sirve para manejar los errores
         },
@@ -27,8 +30,18 @@ export default function RegisterUserForm(){
         resolver: zodResolver(registerSchema)
     });
 
-    const onSubmit: SubmitHandler<RegisterType> = (data) => {
-        console.log(data)
+    
+    const onSubmit: SubmitHandler<RegisterType> = async(data) => {
+        // console.log(data);
+      const usuarioRegistradoActual =  await authServices.register(data);
+
+      if(usuarioRegistradoActual?.status === 201){
+        toast.success("Usuario registrado exitosamente");
+        reset();
+          
+      }
+
+      console.log("usuarioRegistradoActual", usuarioRegistradoActual);
     }
 
     return(

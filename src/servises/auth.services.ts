@@ -1,6 +1,11 @@
 
+
 import apiClient from "./apiClient.services";
 import { AxiosError } from "axios";
+import { toast } from "sonner";
+
+
+
 interface RegisterData {
   email: string;
   password: string;
@@ -14,6 +19,7 @@ interface LoginData {
 }
 
 const authServices = {
+  
 login: async (data: LoginData) => {
     try{
         
@@ -22,6 +28,7 @@ login: async (data: LoginData) => {
         if(response.status === 200){
             console.log("entre al 200");
             console.log(response.data.message)
+            
             return response
         }
         
@@ -36,6 +43,7 @@ login: async (data: LoginData) => {
        if (axiosError.response) {
         console.log("Status:", axiosError.response.status);
         console.log("Mensaje:", axiosError.response.data?.message);
+        toast.error(axiosError.response.data?.message)
 
         // Puedes retornar el error o lanzar uno nuevo con más control
         return {
@@ -53,8 +61,44 @@ login: async (data: LoginData) => {
         
         
     }
-}
+},
 
+//logout//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Register////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+register: async (data: RegisterData) => {
+   try{
+    const response = await apiClient.post("/auth/register", data)
+    console.log(response);
+   
+        
+        console.log(response.data.message)
+        
+        return response
+    
+    
+  
+
+   }catch(err){
+   const axiosError = err as AxiosError<{message: string}>
+
+       if (axiosError.response) {
+        console.log("Status:", axiosError.response.status);
+        console.log("Mensaje:", axiosError.response.data?.message);
+
+        // Puedes retornar el error o lanzar uno nuevo con más control
+        return {
+          status: axiosError.response.status,
+          message: axiosError.response.data?.message,
+        };
+      } else {
+        console.error("Error inesperado", err);
+        return {
+          status: 500,
+          message: "Error de red o del servidor al registrarse",
+        };
+      }
+   }  
+}
 
 }
 
